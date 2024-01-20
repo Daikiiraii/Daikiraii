@@ -17,6 +17,7 @@
         canvas {
             border: 1px solid #000;
             touch-action: none;
+            transition: transform 0.2s ease-out; /* Добавлено для плавной анимации масштабирования */
         }
 
         #controls {
@@ -61,8 +62,8 @@
     let currentTransparency = 1;
     let scaleFactor = 1;
 
-    canvas.width = 2000;
-    canvas.height = 1000;
+    canvas.width = 6000; // Увеличил размер холста в 3 раза
+    canvas.height = 3000; // Увеличил размер холста в 3 раза
 
     canvas.addEventListener('mousedown', startDrawing);
     canvas.addEventListener('touchstart', startDrawing);
@@ -131,12 +132,22 @@
     function handleZoom(e) {
         e.preventDefault();
 
-        scaleFactor += e.deltaY * -0.01;
+        const zoomSpeed = 0.05; // Скорость масштабирования
+        const oldScaleFactor = scaleFactor;
+
+        scaleFactor += e.deltaY * -zoomSpeed;
 
         // Limit zoom between 0.2 and 5
         scaleFactor = Math.min(Math.max(0.2, scaleFactor), 5);
 
+        // Добавлена анимация масштабирования
+        canvas.style.transition = 'transform 0.2s ease-out';
         canvas.style.transform = `scale(${scaleFactor})`;
+
+        // Сброс анимации после завершения
+        setTimeout(() => {
+            canvas.style.transition = 'none';
+        }, 200);
     }
 
     window.addEventListener('resize', () => {
