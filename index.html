@@ -73,10 +73,6 @@
     let isPanning = false;
     let panStartX = 0;
     let panStartY = 0;
-    let panOffsetX = 0;
-    let panOffsetY = 0;
-
-    let animationFrame;
 
     function draw(e) {
       if (!isDrawing) return;
@@ -146,6 +142,8 @@
       isPanning = !isPanning;
       const panButton = document.querySelector('#controls button:nth-child(3)');
       panButton.textContent = isPanning ? 'Стоп перемещение' : 'Перемещение';
+      panStartX = 0;
+      panStartY = 0;
     }
 
     function handleMouseDown(e) {
@@ -162,13 +160,12 @@
     function handleMouseMove(e) {
       if (isPanning) {
         if (!isDrawing) return;
-        cancelAnimationFrame(animationFrame);
 
         const deltaX = e.clientX - panStartX;
         const deltaY = e.clientY - panStartY;
 
-        panOffsetX += deltaX;
-        panOffsetY += deltaY;
+        canvasOffsetX += deltaX;
+        canvasOffsetY += deltaY;
 
         panStartX = e.clientX;
         panStartY = e.clientY;
@@ -181,19 +178,6 @@
 
     function handleMouseUp() {
       isDrawing = false;
-    }
-
-    function animatePan() {
-      const startOffsetX = canvasOffsetX;
-      const startOffsetY = canvasOffsetY;
-
-      const deltaX = panOffsetX;
-      const deltaY = panOffsetY;
-
-      canvasOffsetX = startOffsetX + deltaX;
-      canvasOffsetY = startOffsetY + deltaY;
-
-      clearCanvas();
     }
 
     // Обработка событий мыши и тача
@@ -218,13 +202,12 @@
     canvas.addEventListener('touchmove', (e) => {
       if (isPanning) {
         if (!isDrawing) return;
-        cancelAnimationFrame(animationFrame);
 
         const deltaX = e.touches[0].clientX - panStartX;
         const deltaY = e.touches[0].clientY - panStartY;
 
-        panOffsetX += deltaX;
-        panOffsetY += deltaY;
+        canvasOffsetX += deltaX;
+        canvasOffsetY += deltaY;
 
         panStartX = e.touches[0].clientX;
         panStartY = e.touches[0].clientY;
