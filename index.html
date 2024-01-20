@@ -38,6 +38,9 @@
     <label for="brushSizeInput">Толщина кисти:</label>
     <input type="range" id="brushSizeInput" min="1" max="100" value="10" onchange="changeBrushSize(this.value)">
     <input type="number" id="brushSizeNumber" min="1" max="100" value="10" onchange="changeBrushSize(this.value)">
+    <label for="opacityInput">Прозрачность кисти:</label>
+    <input type="range" id="opacityInput" min="0" max="1" step="0.1" value="1" onchange="changeOpacity(this.value)">
+    <input type="number" id="opacityNumber" min="0" max="1" step="0.1" value="1" onchange="changeOpacity(this.value)">
   </div>
 
   <canvas id="drawCanvas"></canvas>
@@ -48,6 +51,8 @@
     const colorPicker = document.getElementById('colorPicker');
     const brushSizeInput = document.getElementById('brushSizeInput');
     const brushSizeNumber = document.getElementById('brushSizeNumber');
+    const opacityInput = document.getElementById('opacityInput');
+    const opacityNumber = document.getElementById('opacityNumber');
     
     // Установка размеров холста
     canvas.width = 10000;
@@ -58,6 +63,7 @@
     let lastY = 0;
     let brushSize = 10;
     let eraserMode = false;
+    let opacity = 1;
 
     function draw(e) {
       if (!isDrawing) return;
@@ -68,10 +74,7 @@
       
       ctx.strokeStyle = eraserMode ? '#f0f0f0' : colorPicker.value;
       
-      ctx.globalAlpha = 1; // полная прозрачность
-      if (e.pressure) {
-        ctx.globalAlpha = e.pressure; // учитывает силу нажатия на нажимных устройствах (например, стилусах)
-      }
+      ctx.globalAlpha = opacity;
       
       ctx.beginPath();
       ctx.moveTo(lastX, lastY);
@@ -98,6 +101,12 @@
       brushSize = value;
       brushSizeInput.value = value;
       brushSizeNumber.value = value;
+    }
+
+    function changeOpacity(value) {
+      opacity = value;
+      opacityInput.value = value;
+      opacityNumber.value = value;
     }
 
     // Обработка событий мыши и тача
