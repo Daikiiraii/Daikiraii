@@ -7,8 +7,8 @@
     <style>
         body {
             display: flex;
-            justify-content: flex-start;
-            align-items: flex-start;
+            justify-content: center;
+            align-items: center;
             height: 100vh;
             margin: 0;
             overflow: hidden;
@@ -20,9 +20,7 @@
         }
 
         #controls {
-            display: flex;
-            flex-direction: column;
-            position: absolute;
+            position: fixed;
             top: 10px;
             left: 10px;
             background-color: rgba(255, 255, 255, 0.8);
@@ -34,17 +32,7 @@
             margin-bottom: 10px;
             padding: 10px;
             font-size: 16px;
-            border-radius: 10px;
             cursor: pointer;
-        }
-
-        .style-selector {
-            display: flex;
-            margin-bottom: 10px;
-        }
-
-        .style-selector label {
-            margin-right: 10px;
         }
     </style>
 </head>
@@ -60,18 +48,6 @@
     <input type="range" id="brushSize" min="1" max="20" value="2" onchange="setBrushSize()">
     <label for="transparency">Прозрачность:</label>
     <input type="range" id="transparency" min="0" max="1" step="0.1" value="1" onchange="setTransparency()">
-
-    <div class="style-selector">
-        <label for="styleSelector">Стиль кисти:</label>
-        <select id="styleSelector" onchange="setBrushStyle()">
-            <option value="round">Круглая</option>
-            <option value="square">Квадратная</option>
-            <option value="butt">Прямоугольная</option>
-            <option value="miter">Угловая</option>
-            <option value="bevel">Скошенная</option>
-        </select>
-    </div>
-
     <button onclick="clearCanvas()">Очистить</button>
 </div>
 
@@ -83,7 +59,6 @@
     let currentColor = '#000000';
     let currentBrushSize = 2;
     let currentTransparency = 1;
-    let currentBrushStyle = 'round';
 
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -118,7 +93,6 @@
 
         context.globalAlpha = currentTransparency;
 
-        setBrushStyle();
         context.lineTo(x, y);
         context.stroke();
         context.beginPath();
@@ -146,14 +120,6 @@
 
     function setTransparency() {
         currentTransparency = document.getElementById('transparency').value;
-    }
-
-    function setBrushStyle() {
-        const styleSelector = document.getElementById('styleSelector');
-        const selectedStyle = styleSelector.options[styleSelector.selectedIndex].value;
-
-        context.lineJoin = selectedStyle;
-        context.lineCap = selectedStyle;
     }
 
     function clearCanvas() {
