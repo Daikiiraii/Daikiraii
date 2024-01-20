@@ -33,7 +33,6 @@
   <div id="controls">
     <button onclick="toggleBrushMode()">Инструмент</button>
     <button onclick="clearCanvas()">Очистить</button>
-    <button onclick="togglePanMode()">Перемещение</button>
     <label for="colorPicker">Выберите цвет:</label>
     <input type="color" id="colorPicker" onchange="changeColor()">
     <label for="brushSizeInput">Толщина кисти:</label>
@@ -66,18 +65,10 @@
     let eraserMode = false;
     let opacity = 1;
 
-    let canvasOffsetX = 0;
-    let canvasOffsetY = 0;
-    let scale = 1;
-
-    let isPanning = false;
-    let panStartX = 0;
-    let panStartY = 0;
-
     function draw(e) {
       if (!isDrawing) return;
       
-      ctx.lineWidth = brushSize / scale;
+      ctx.lineWidth = brushSize;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       
@@ -86,16 +77,16 @@
       ctx.globalAlpha = opacity;
       
       ctx.beginPath();
-      ctx.moveTo(lastX / scale, lastY / scale);
-      ctx.lineTo(e.clientX / scale - canvasOffsetX, e.clientY / scale - canvasOffsetY);
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(e.clientX, e.clientY);
       ctx.stroke();
 
-      [lastX, lastY] = [e.clientX - canvasOffsetX, e.clientY - canvasOffsetY];
+      [lastX, lastY] = [e.clientX, e.clientY];
     }
 
     function toggleBrushMode() {
       eraserMode = !eraserMode;
-      const toolButton = document.querySelector('#controls button:nth-child(1)');
+      const toolButton = document.querySelector('#controls button');
       toolButton.textContent = eraserMode ? 'Ластик' : 'Кисть';
     }
 
@@ -120,110 +111,29 @@
       opacityNumber.value = value;
     }
 
-    function handleWheel(e) {
-      e.preventDefault();
-
-      const x = e.clientX - canvasOffsetX;
-      const y = e.clientY - canvasOffsetY;
-
-      const delta = e.deltaY > 0 ? 1.1 : 1 / 1.1;
-      scale *= delta;
-      ctx.scale(delta, delta);
-
-      // Пересчитываем смещение холста
-      canvasOffsetX = (canvasOffsetX - x) * delta + x;
-      canvasOffsetY = (canvasOffsetY - y) * delta + y;
-
-      // Перерисовываем холст
-      clearCanvas();
-    }
-
-    function togglePanMode() {
-      isPanning = !isPanning;
-      const panButton = document.querySelector('#controls button:nth-child(3)');
-      panButton.textContent = isPanning ? 'Стоп перемещение' : 'Перемещение';
-      panStartX = 0;
-      panStartY = 0;
-    }
-
-    function handleMouseDown(e) {
-      if (isPanning) {
-        isDrawing = true;
-        panStartX = e.clientX;
-        panStartY = e.clientY;
-      } else {
-        isDrawing = true;
-        [lastX, lastY] = [e.clientX - canvasOffsetX, e.clientY - canvasOffsetY];
-      }
-    }
-
-    function handleMouseMove(e) {
-      if (isPanning) {
-        if (!isDrawing) return;
-
-        const deltaX = e.clientX - panStartX;
-        const deltaY = e.clientY - panStartY;
-
-        canvasOffsetX += deltaX;
-        canvasOffsetY += deltaY;
-
-        panStartX = e.clientX;
-        panStartY = e.clientY;
-
-        clearCanvas();
-      } else {
-        draw(e);
-      }
-    }
-
-    function handleMouseUp() {
-      isDrawing = false;
-    }
-
     // Обработка событий мыши и тача
-    canvas.addEventListener('mousedown', handleMouseDown);
-    canvas.addEventListener('mousemove', handleMouseMove);
-    canvas.addEventListener('mouseup', handleMouseUp);
-    canvas.addEventListener('mouseout', handleMouseUp);
+    canvas.addEventListener('mousedown', (e) => {
+      isDrawing = true;
+      [lastX, lastY] = [e.clientX, e.clientY];
+    });
+
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', () => isDrawing = false);
+    canvas.addEventListener('mouseout', () => isDrawing = false);
 
     // Обработка событий тача
     canvas.addEventListener('touchstart', (e) => {
-      if (isPanning) {
-        isDrawing = true;
-        panStartX = e.touches[0].clientX;
-        panStartY = e.touches[0].clientY;
-      } else {
-        isDrawing = true;
-        [lastX, lastY] = [e.touches[0].clientX - canvasOffsetX, e.touches[0].clientY - canvasOffsetY];
-      }
-      e.preventDefault();
+      isDrawing = true;
+      [lastX, lastY] = [e.touches[0].clientX, e.touches[0].clientY];
     });
 
     canvas.addEventListener('touchmove', (e) => {
-      if (isPanning) {
-        if (!isDrawing) return;
-
-        const deltaX = e.touches[0].clientX - panStartX;
-        const deltaY = e.touches[0].clientY - panStartY;
-
-        canvasOffsetX += deltaX;
-        canvasOffsetY += deltaY;
-
-        panStartX = e.touches[0].clientX;
-        panStartY = e.touches[0].clientY;
-
-        clearCanvas();
-      } else {
-        draw(e.touches[0]);
-      }
+      draw(e.touches[0]);
       e.preventDefault();
     });
 
     canvas.addEventListener('touchend', () => isDrawing = false);
     canvas.addEventListener('touchcancel', () => isDrawing = false);
-
-    // Обработка события масштабирования колесиком мыши
-    canvas.addEventListener('wheel', handleWheel);
 
     // Дополнительные функции
     window.addEventListener('resize', handleResize);
@@ -233,9 +143,6 @@
       }
       if (e.key === 'c') {
         clearCanvas();
-      }
-      if (e.key === 'p') {
-        togglePanMode();
       }
     });
 
