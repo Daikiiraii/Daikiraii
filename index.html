@@ -73,8 +73,8 @@
     let isPanning = false;
     let panStartX = 0;
     let panStartY = 0;
-    let panEndX = 0;
-    let panEndY = 0;
+    let panOffsetX = 0;
+    let panOffsetY = 0;
 
     let animationFrame;
 
@@ -164,17 +164,14 @@
         if (!isDrawing) return;
         cancelAnimationFrame(animationFrame);
 
-        panEndX = e.clientX;
-        panEndY = e.clientY;
+        const deltaX = e.clientX - panStartX;
+        const deltaY = e.clientY - panStartY;
 
-        const deltaX = panEndX - panStartX;
-        const deltaY = panEndY - panStartY;
+        panOffsetX += deltaX;
+        panOffsetY += deltaY;
 
-        canvasOffsetX += deltaX;
-        canvasOffsetY += deltaY;
-
-        panStartX = panEndX;
-        panStartY = panEndY;
+        panStartX = e.clientX;
+        panStartY = e.clientY;
 
         clearCanvas();
       } else {
@@ -184,6 +181,19 @@
 
     function handleMouseUp() {
       isDrawing = false;
+    }
+
+    function animatePan() {
+      const startOffsetX = canvasOffsetX;
+      const startOffsetY = canvasOffsetY;
+
+      const deltaX = panOffsetX;
+      const deltaY = panOffsetY;
+
+      canvasOffsetX = startOffsetX + deltaX;
+      canvasOffsetY = startOffsetY + deltaY;
+
+      clearCanvas();
     }
 
     // Обработка событий мыши и тача
@@ -210,17 +220,14 @@
         if (!isDrawing) return;
         cancelAnimationFrame(animationFrame);
 
-        panEndX = e.touches[0].clientX;
-        panEndY = e.touches[0].clientY;
+        const deltaX = e.touches[0].clientX - panStartX;
+        const deltaY = e.touches[0].clientY - panStartY;
 
-        const deltaX = panEndX - panStartX;
-        const deltaY = panEndY - panStartY;
+        panOffsetX += deltaX;
+        panOffsetY += deltaY;
 
-        canvasOffsetX += deltaX;
-        canvasOffsetY += deltaY;
-
-        panStartX = panEndX;
-        panStartY = panEndY;
+        panStartX = e.touches[0].clientX;
+        panStartY = e.touches[0].clientY;
 
         clearCanvas();
       } else {
