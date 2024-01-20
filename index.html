@@ -111,43 +111,25 @@
       opacityNumber.value = value;
     }
 
+    function handleWheel(e) {
+      e.preventDefault();
+
+      const scaleAmount = 1.1;
+      const x = e.clientX - canvas.offsetLeft;
+      const y = e.clientY - canvas.offsetTop;
+
+      const delta = e.deltaY > 0 ? 1 / scaleAmount : scaleAmount;
+      ctx.scale(delta, delta);
+      ctx.translate(-x * (delta - 1), -y * (delta - 1));
+
+      // Перерисовываем холст
+      clearCanvas();
+    }
+
     // Обработка событий мыши и тача
     canvas.addEventListener('mousedown', (e) => {
       isDrawing = true;
       [lastX, lastY] = [e.clientX, e.clientY];
     });
 
-    canvas.addEventListener('mousemove', draw);
-    canvas.addEventListener('mouseup', () => isDrawing = false);
-    canvas.addEventListener('mouseout', () => isDrawing = false);
-
-    // Обработка событий тача
-    canvas.addEventListener('touchstart', (e) => {
-      isDrawing = true;
-      [lastX, lastY] = [e.touches[0].clientX, e.touches[0].clientY];
-    });
-
-    canvas.addEventListener('touchmove', (e) => {
-      draw(e.touches[0]);
-      e.preventDefault();
-    });
-
-    canvas.addEventListener('touchend', () => isDrawing = false);
-    canvas.addEventListener('touchcancel', () => isDrawing = false);
-
-    // Дополнительные функции
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'e') {
-        toggleBrushMode();
-      }
-      if (e.key === 'c') {
-        clearCanvas();
-      }
-    });
-
-    // Вызов функции handleResize для установки начальных размеров окна
-    handleResize();
-  </script>
-</body>
-</html>
+    canvas
