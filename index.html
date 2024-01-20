@@ -67,11 +67,12 @@
 
     let canvasOffsetX = 0;
     let canvasOffsetY = 0;
+    let scale = 1;
 
     function draw(e) {
       if (!isDrawing) return;
       
-      ctx.lineWidth = brushSize;
+      ctx.lineWidth = brushSize / scale;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       
@@ -80,8 +81,8 @@
       ctx.globalAlpha = opacity;
       
       ctx.beginPath();
-      ctx.moveTo(lastX, lastY);
-      ctx.lineTo(e.clientX - canvasOffsetX, e.clientY - canvasOffsetY);
+      ctx.moveTo(lastX / scale, lastY / scale);
+      ctx.lineTo(e.clientX / scale - canvasOffsetX, e.clientY / scale - canvasOffsetY);
       ctx.stroke();
 
       [lastX, lastY] = [e.clientX - canvasOffsetX, e.clientY - canvasOffsetY];
@@ -117,11 +118,11 @@
     function handleWheel(e) {
       e.preventDefault();
 
-      const scaleAmount = 1.1;
       const x = e.clientX - canvasOffsetX;
       const y = e.clientY - canvasOffsetY;
 
-      const delta = e.deltaY > 0 ? 1 / scaleAmount : scaleAmount;
+      const delta = e.deltaY > 0 ? 1.1 : 1 / 1.1;
+      scale *= delta;
       ctx.scale(delta, delta);
 
       // Пересчитываем смещение холста
