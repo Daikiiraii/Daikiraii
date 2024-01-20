@@ -133,14 +133,17 @@
     function handleZoom(e) {
         e.preventDefault();
 
-        const zoomSpeed = 0.05;
+        const zoomSpeed = 0.03;
         const oldScaleFactor = scaleFactor;
         const targetScaleFactor = Math.min(Math.max(0.2, scaleFactor + e.deltaY * -zoomSpeed), 5);
 
-        animateZoom(oldScaleFactor, targetScaleFactor, 200);
+        const x = e.clientX - canvas.getBoundingClientRect().left;
+        const y = e.clientY - canvas.getBoundingClientRect().top;
+
+        animateZoom(oldScaleFactor, targetScaleFactor, x, y, 200);
     }
 
-    function animateZoom(startScale, targetScale, duration) {
+    function animateZoom(startScale, targetScale, pivotX, pivotY, duration) {
         let startTimestamp;
 
         function step(timestamp) {
@@ -151,7 +154,10 @@
 
             scaleFactor = startScale + percentage * (targetScale - startScale);
 
-            canvas.style.transform = `scale(${scaleFactor})`;
+            const offsetX = (1 - scaleFactor) * pivotX;
+            const offsetY = (1 - scaleFactor) * pivotY;
+
+            canvas.style.transform = `scale(${scaleFactor}) translate(${offsetX}px, ${offsetY}px)`;
 
             if (percentage < 1) {
                 animationRequestId = requestAnimationFrame(step);
