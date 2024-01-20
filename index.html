@@ -170,10 +170,13 @@
         const deltaX = panEndX - panStartX;
         const deltaY = panEndY - panStartY;
 
+        canvasOffsetX += deltaX;
+        canvasOffsetY += deltaY;
+
         panStartX = panEndX;
         panStartY = panEndY;
 
-        animatePan(deltaX, deltaY);
+        clearCanvas();
       } else {
         draw(e);
       }
@@ -181,28 +184,6 @@
 
     function handleMouseUp() {
       isDrawing = false;
-    }
-
-    function animatePan(deltaX, deltaY) {
-      const startOffsetX = canvasOffsetX;
-      const startOffsetY = canvasOffsetY;
-      const startTime = performance.now();
-
-      function animate(currentTime) {
-        const progress = (currentTime - startTime) / 300; // Длительность анимации 300 мс
-        if (progress < 1) {
-          canvasOffsetX = startOffsetX + deltaX * progress;
-          canvasOffsetY = startOffsetY + deltaY * progress;
-          clearCanvas();
-          animationFrame = requestAnimationFrame(animate);
-        } else {
-          canvasOffsetX = startOffsetX + deltaX;
-          canvasOffsetY = startOffsetY + deltaY;
-          clearCanvas();
-        }
-      }
-
-      animationFrame = requestAnimationFrame(animate);
     }
 
     // Обработка событий мыши и тача
@@ -235,10 +216,13 @@
         const deltaX = panEndX - panStartX;
         const deltaY = panEndY - panStartY;
 
+        canvasOffsetX += deltaX;
+        canvasOffsetY += deltaY;
+
         panStartX = panEndX;
         panStartY = panEndY;
 
-        animatePan(deltaX, deltaY);
+        clearCanvas();
       } else {
         draw(e.touches[0]);
       }
