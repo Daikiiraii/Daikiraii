@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Совместное рисование</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-start;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        canvas {
+            border: 1px solid #000;
+            touch-action: none;
+        }
+
+        #controls {
+            display: flex;
+            flex-direction: column;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        button {
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .style-selector {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        .style-selector label {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="drawingCanvas"></canvas>
+<div id="controls">
+    <button onclick="setDrawingMode('draw')">Рисовать</button>
+    <button onclick="setDrawingMode('erase')">Стереть</button>
+    <label for="colorPicker">Цвет кисти:</label>
+    <input type="color" id="colorPicker" value="#000000" onchange="setColor()">
+    <label for="brushSize">Размер кисти:</label>
+    <input type="range" id="brushSize" min="1" max="20" value="2" onchange="setBrushSize()">
+    <label for="transparency">Прозрачность:</label>
+    <input type="range" id="transparency" min="0" max="1" step="0.1" value="1" onchange="setTransparency()">
+
+    <div class="style-selector">
+        <label for="styleSelector">Стиль кисти:</label>
+        <select id="styleSelector" onchange="setBrushStyle()">
+            <option value="round">Круглая</option>
+            <option value="square">Квадратная</option>
+            <option value="butt">Прямоугольная</option>
+            <option value="miter">Угловая</option>
+            <option value="bevel">Скошенная</option>
+        </select>
+    </div>
+
+    <button onclick="clearCanvas()">Очистить</button>
+</div>
+
+<script>
+    const canvas = document.getElementById('drawingCanvas');
+    const context = canvas.getContext('2d');
+    let isDrawing = false;
+    let drawingMode = 'draw';
+    let currentColor = '#000000';
+    let currentBrushSize = 2;
+    let currentTransparency = 1;
+    let currentBrushStyle = 'round';
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('touchstart', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('touchmove', draw, { passive: false });
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('touchend', stopDrawing);
+
+    function startDrawing(e) {
+        isDrawing = true;
+        draw(e);
+    }
+
+    function draw(e) {
+        if (!isDrawing) return;
+
+        const x = e.clientX || e.touches[0].clientX;
+        const y = e.clientY || e.touches[0].clientY;
+
+        context.lineWidth = currentBrushSize;
+
+        if (drawingMode === 'draw') {
+            context.globalCompositeOperation = 'source-over';
+            context.strokeStyle = currentColor;
+        } else if (drawingMode === 'erase') {
+            context.globalCompositeOperation = 'destination-out';
+            context.strokeStyle = '#fff';
+        }
+
+        context.globalAlpha = currentTransparency;
+
+        setBrushStyle();
+        context.lineTo(x, y);
+        context.stroke();
+        context.beginPath();
+        context.moveTo(x, y);
+    }
+
+    function stopDrawing() {
+        isDrawing = false;
+        context.globalCompositeOperation = 'source-over';
+        context.globalAlpha = 1;
+        context.beginPath();
+    }
+
+    function setDrawingMode(mode) {
+        drawingMode = mode;
+    }
+
+    function setColor() {
+        currentColor = document.getElementById('colorPicker').value;
+    }
+
+    function setBrushSize() {
+        currentBrushSize = document.getElementById('brushSize').value;
+    }
+
+    function setTransparency() {
+        currentTransparency = document.getElementById('transparency').value;
+    }
+
+    function setBrushStyle() {
+        const styleSelector = document.getElementById('styleSelector');
+        const selectedStyle = styleSelector.options[styleSelector.selectedIndex].value;
+
+        context.lineJoin = selectedStyle;
+        context.lineCap = selectedStyle;
+    }
+
+    function clearCanvas() {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
+</script>
+
+</body>
+</html>
