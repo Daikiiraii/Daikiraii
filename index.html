@@ -35,6 +35,10 @@
     <button onclick="clearCanvas()">Очистить</button>
     <label for="colorPicker">Выберите цвет:</label>
     <input type="color" id="colorPicker" onchange="changeColor()">
+    <label for="gradientStartColor">Начальный цвет градиента:</label>
+    <input type="color" id="gradientStartColor" onchange="updateGradient()">
+    <label for="gradientEndColor">Конечный цвет градиента:</label>
+    <input type="color" id="gradientEndColor" onchange="updateGradient()">
     <label for="brushSizeInput">Толщина кисти:</label>
     <input type="range" id="brushSizeInput" min="1" max="100" value="10" onchange="changeBrushSize(this.value)">
     <input type="number" id="brushSizeNumber" min="1" max="100" value="10" onchange="changeBrushSize(this.value)">
@@ -49,6 +53,8 @@
     const canvas = document.getElementById('drawCanvas');
     const ctx = canvas.getContext('2d');
     const colorPicker = document.getElementById('colorPicker');
+    const gradientStartColor = document.getElementById('gradientStartColor');
+    const gradientEndColor = document.getElementById('gradientEndColor');
     const brushSizeInput = document.getElementById('brushSizeInput');
     const brushSizeNumber = document.getElementById('brushSizeNumber');
     const opacityInput = document.getElementById('opacityInput');
@@ -72,7 +78,11 @@
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
       
-      ctx.strokeStyle = eraserMode ? '#f0f0f0' : colorPicker.value;
+      const gradient = ctx.createLinearGradient(lastX, lastY, e.clientX, e.clientY);
+      gradient.addColorStop(0, gradientStartColor.value);
+      gradient.addColorStop(1, gradientEndColor.value);
+
+      ctx.strokeStyle = eraserMode ? '#f0f0f0' : gradient;
       
       ctx.globalAlpha = opacity;
       
@@ -109,6 +119,11 @@
       opacity = value;
       opacityInput.value = value;
       opacityNumber.value = value;
+    }
+
+    function updateGradient() {
+      // Обновление градиента при изменении цветов
+      clearCanvas();
     }
 
     // Обработка событий мыши и тача
