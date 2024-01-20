@@ -31,7 +31,7 @@
 </head>
 <body>
   <div id="controls">
-    <button onclick="eraseToggle()">Ластик</button>
+    <button onclick="toggleBrushMode()">Инструмент</button>
     <button onclick="clearCanvas()">Очистить</button>
     <label for="colorPicker">Выберите цвет:</label>
     <input type="color" id="colorPicker" onchange="changeColor()">
@@ -84,8 +84,10 @@
       [lastX, lastY] = [e.clientX, e.clientY];
     }
 
-    function eraseToggle() {
+    function toggleBrushMode() {
       eraserMode = !eraserMode;
+      const toolButton = document.querySelector('#controls button');
+      toolButton.textContent = eraserMode ? 'Ластик' : 'Кисть';
     }
 
     function clearCanvas() {
@@ -110,14 +112,14 @@
     }
 
     // Обработка событий мыши и тача
-    canvas.addEventListener('pointerdown', (e) => {
+    canvas.addEventListener('mousedown', (e) => {
       isDrawing = true;
       [lastX, lastY] = [e.clientX, e.clientY];
     });
 
     canvas.addEventListener('mousemove', draw);
-    canvas.addEventListener('pointerup', () => isDrawing = false);
-    canvas.addEventListener('pointerout', () => isDrawing = false);
+    canvas.addEventListener('mouseup', () => isDrawing = false);
+    canvas.addEventListener('mouseout', () => isDrawing = false);
 
     // Обработка событий тача
     canvas.addEventListener('touchstart', (e) => {
@@ -137,7 +139,7 @@
     window.addEventListener('resize', handleResize);
     window.addEventListener('keydown', (e) => {
       if (e.key === 'e') {
-        eraseToggle();
+        toggleBrushMode();
       }
       if (e.key === 'c') {
         clearCanvas();
