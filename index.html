@@ -17,7 +17,7 @@
         canvas {
             border: 1px solid #000;
             touch-action: none;
-            transition: transform 0.2s ease-out; /* Добавлено для плавной анимации масштабирования */
+            transition: transform 0.2s ease-out;
         }
 
         #controls {
@@ -61,6 +61,7 @@
     let currentBrushSize = 2;
     let currentTransparency = 1;
     let scaleFactor = 1;
+    let animationRequestId;
 
     canvas.width = 6000; // Увеличил размер холста в 3 раза
     canvas.height = 3000; // Увеличил размер холста в 3 раза
@@ -132,28 +133,15 @@
     function handleZoom(e) {
         e.preventDefault();
 
-        const zoomSpeed = 0.05; // Скорость масштабирования
+        const zoomSpeed = 0.05;
         const oldScaleFactor = scaleFactor;
+        const targetScaleFactor = Math.min(Math.max(0.2, scaleFactor + e.deltaY * -zoomSpeed), 5);
 
-        scaleFactor += e.deltaY * -zoomSpeed;
-
-        // Limit zoom between 0.2 and 5
-        scaleFactor = Math.min(Math.max(0.2, scaleFactor), 5);
-
-        // Добавлена анимация масштабирования
-        canvas.style.transition = 'transform 0.2s ease-out';
-        canvas.style.transform = `scale(${scaleFactor})`;
-
-        // Сброс анимации после завершения
-        setTimeout(() => {
-            canvas.style.transition = 'none';
-        }, 200);
+        animateZoom(oldScaleFactor, targetScaleFactor, 200);
     }
 
-    window.addEventListener('resize', () => {
-        // Resize not allowed in this version, consider implementing if needed
-    });
-</script>
+    function animateZoom(startScale, targetScale, duration) {
+        let startTimestamp;
 
-</body>
-</html>
+        function step(timestamp) {
+            if (!startTimestamp) startTimestamp
