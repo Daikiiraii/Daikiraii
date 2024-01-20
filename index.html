@@ -74,6 +74,8 @@
     let panStartX = 0;
     let panStartY = 0;
 
+    let animationFrame;
+
     function draw(e) {
       if (!isDrawing) return;
       
@@ -158,13 +160,14 @@
     function handleMouseMove(e) {
       if (isPanning) {
         if (!isDrawing) return;
+        cancelAnimationFrame(animationFrame);
+
         const deltaX = e.clientX - panStartX;
         const deltaY = e.clientY - panStartY;
         panStartX = e.clientX;
         panStartY = e.clientY;
-        canvasOffsetX += deltaX;
-        canvasOffsetY += deltaY;
-        clearCanvas();
+
+        animatePan(deltaX, deltaY);
       } else {
         draw(e);
       }
@@ -172,6 +175,28 @@
 
     function handleMouseUp() {
       isDrawing = false;
+    }
+
+    function animatePan(deltaX, deltaY) {
+      const startOffsetX = canvasOffsetX;
+      const startOffsetY = canvasOffsetY;
+      const startTime = performance.now();
+
+      function animate(currentTime) {
+        const progress = (currentTime - startTime) / 300; // Длительность анимации 300 мс
+        if (progress < 1) {
+          canvasOffsetX = startOffsetX + deltaX * progress;
+          canvasOffsetY = startOffsetY + deltaY * progress;
+          clearCanvas();
+          animationFrame = requestAnimationFrame(animate);
+        } else {
+          canvasOffsetX = startOffsetX + deltaX;
+          canvasOffsetY = startOffsetY + deltaY;
+          clearCanvas();
+        }
+      }
+
+      animationFrame = requestAnimationFrame(animate);
     }
 
     // Обработка событий мыши и тача
@@ -196,13 +221,14 @@
     canvas.addEventListener('touchmove', (e) => {
       if (isPanning) {
         if (!isDrawing) return;
+        cancelAnimationFrame(animationFrame);
+
         const deltaX = e.touches[0].clientX - panStartX;
         const deltaY = e.touches[0].clientY - panStartY;
         panStartX = e.touches[0].clientX;
         panStartY = e.touches[0].clientY;
-        canvasOffsetX += deltaX;
-        canvasOffsetY += deltaY;
-        clearCanvas();
+
+        animatePan(deltaX, deltaY);
       } else {
         draw(e.touches[0]);
       }
