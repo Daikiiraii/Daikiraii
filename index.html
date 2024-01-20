@@ -110,14 +110,14 @@
     }
 
     // Обработка событий мыши и тача
-    canvas.addEventListener('mousedown', (e) => {
+    canvas.addEventListener('pointerdown', (e) => {
       isDrawing = true;
       [lastX, lastY] = [e.clientX, e.clientY];
     });
 
     canvas.addEventListener('mousemove', draw);
-    canvas.addEventListener('mouseup', () => isDrawing = false);
-    canvas.addEventListener('mouseout', () => isDrawing = false);
+    canvas.addEventListener('pointerup', () => isDrawing = false);
+    canvas.addEventListener('pointerout', () => isDrawing = false);
 
     // Обработка событий тача
     canvas.addEventListener('touchstart', (e) => {
