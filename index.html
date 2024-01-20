@@ -70,7 +70,6 @@
     let brushSize = 10;
     let eraserMode = false;
     let opacity = 1;
-    let gradient;
 
     function draw(e) {
       if (!isDrawing) return;
@@ -78,10 +77,12 @@
       ctx.lineWidth = brushSize;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
-      
-      gradient = ctx.createLinearGradient(lastX, lastY, e.clientX, e.clientY);
+
+      const distance = Math.hypot(e.clientX - lastX, e.clientY - lastY);
+      const gradient = ctx.createLinearGradient(lastX, lastY, e.clientX, e.clientY);
+
       gradient.addColorStop(0, gradientStartColor.value);
-      gradient.addColorStop(1, gradientEndColor.value);
+      gradient.addColorStop(Math.min(1, distance / brushSize), gradientEndColor.value);
 
       ctx.strokeStyle = eraserMode ? '#f0f0f0' : gradient;
       
