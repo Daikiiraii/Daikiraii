@@ -17,7 +17,6 @@
         canvas {
             border: 1px solid #000;
             touch-action: none;
-            transform-origin: top left;
         }
 
         #controls {
@@ -62,8 +61,8 @@
     let currentTransparency = 1;
     let scaleFactor = 1;
 
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    canvas.width = 2000;
+    canvas.height = 1000;
 
     canvas.addEventListener('mousedown', startDrawing);
     canvas.addEventListener('touchstart', startDrawing);
@@ -81,10 +80,10 @@
     function draw(e) {
         if (!isDrawing) return;
 
-        const x = (e.clientX || e.touches[0].clientX) / scaleFactor;
-        const y = (e.clientY || e.touches[0].clientY) / scaleFactor;
+        const x = e.clientX || e.touches[0].clientX;
+        const y = e.clientY || e.touches[0].clientY;
 
-        context.lineWidth = currentBrushSize;
+        context.lineWidth = currentBrushSize * scaleFactor;
 
         if (drawingMode === 'draw') {
             context.globalCompositeOperation = 'source-over';
@@ -96,10 +95,10 @@
 
         context.globalAlpha = currentTransparency;
 
-        context.lineTo(x, y);
+        context.lineTo(x / scaleFactor, y / scaleFactor);
         context.stroke();
         context.beginPath();
-        context.moveTo(x, y);
+        context.moveTo(x / scaleFactor, y / scaleFactor);
     }
 
     function stopDrawing() {
@@ -141,8 +140,7 @@
     }
 
     window.addEventListener('resize', () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        // Resize not allowed in this version, consider implementing if needed
     });
 </script>
 
