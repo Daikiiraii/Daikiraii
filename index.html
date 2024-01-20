@@ -17,6 +17,7 @@
         canvas {
             border: 1px solid #000;
             touch-action: none;
+            transform-origin: top left;
         }
 
         #controls {
@@ -80,10 +81,10 @@
     function draw(e) {
         if (!isDrawing) return;
 
-        const x = e.clientX || e.touches[0].clientX;
-        const y = e.clientY || e.touches[0].clientY;
+        const x = (e.clientX || e.touches[0].clientX) / scaleFactor;
+        const y = (e.clientY || e.touches[0].clientY) / scaleFactor;
 
-        context.lineWidth = currentBrushSize * scaleFactor;
+        context.lineWidth = currentBrushSize;
 
         if (drawingMode === 'draw') {
             context.globalCompositeOperation = 'source-over';
@@ -95,10 +96,10 @@
 
         context.globalAlpha = currentTransparency;
 
-        context.lineTo(x / scaleFactor, y / scaleFactor);
+        context.lineTo(x, y);
         context.stroke();
         context.beginPath();
-        context.moveTo(x / scaleFactor, y / scaleFactor);
+        context.moveTo(x, y);
     }
 
     function stopDrawing() {
