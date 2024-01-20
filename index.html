@@ -1,84 +1,153 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Realtime Drawing</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Совместное рисование</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        canvas {
+            border: 1px solid #000;
+            touch-action: none;
+        }
+
+        #controls {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        button {
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-  <canvas id="drawingCanvas" width="800" height="600"></canvas>
 
-  <!-- Добавляем элементы управления для выбора кисти -->
-  <label for="brushSelect">Select Brush:</label>
-  <select id="brushSelect" onchange="changeBrush()">
-    <option value="round">Round Brush</option>
-    <option value="square">Square Brush</option>
-    <!-- Добавьте дополнительные варианты кистей по вашему усмотрению -->
-  </select>
+<canvas id="drawingCanvas"></canvas>
+<div id="controls">
+    <button onclick="setDrawingMode('draw')">Рисовать</button>
+    <button onclick="setDrawingMode('erase')">Стереть</button>
+    <label for="colorPicker">Цвет кисти:</label>
+    <input type="color" id="colorPicker" value="#000000" onchange="setColor()">
+    <label for="brushSize">Размер кисти:</label>
+    <input type="range" id="brushSize" min="1" max="20" value="2" onchange="setBrushSize()">
+    <label for="transparency">Прозрачность:</label>
+    <input type="range" id="transparency" min="0" max="1" step="0.1" value="1" onchange="setTransparency()">
+    <button onclick="clearCanvas()">Очистить</button>
+</div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
-  <script>
-    const socket = io();
+<script>
     const canvas = document.getElementById('drawingCanvas');
-    const ctx = canvas.getContext('2d');
+    const context = canvas.getContext('2d');
+    let isDrawing = false;
+    let drawingMode = 'draw';
+    let currentColor = '#000000';
+    let currentBrushSize = 2;
+    let currentTransparency = 1;
+    let scaleFactor = 1;
 
-    let currentBrush = 'round';
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
-    socket.on('draw', (data) => {
-      drawLine(data);
-    });
-
-    let drawing = false;
-
-    canvas.addEventListener('mousedown', () => {
-      drawing = true;
-    });
-
-    canvas.addEventListener('mouseup', () => {
-      drawing = false;
-      ctx.beginPath();
-    });
-
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('touchstart', startDrawing);
     canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('touchmove', draw, { passive: false });
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('touchend', stopDrawing);
+    canvas.addEventListener('wheel', handleZoom);
 
-    function draw(event) {
-      if (!drawing) return;
-
-      const data = {
-        x: event.clientX - canvas.getBoundingClientRect().left,
-        y: event.clientY - canvas.getBoundingClientRect().top,
-        brush: currentBrush  // Добавляем информацию о текущей кисти
-      };
-
-      drawLine(data);
-
-      socket.emit('draw', data);
+    function startDrawing(e) {
+        isDrawing = true;
+        draw(e);
     }
 
-    function drawLine(data) {
-      ctx.lineWidth = 2;
+    function draw(e) {
+        if (!isDrawing) return;
 
-      // Выбор кисти
-      if (data.brush === 'square') {
-        ctx.lineCap = 'square';
-      } else {
-        ctx.lineCap = 'round';
-      }
+        const x = e.clientX || e.touches[0].clientX;
+        const y = e.clientY || e.touches[0].clientY;
 
-      ctx.strokeStyle = 'black';
+        context.lineWidth = currentBrushSize * scaleFactor;
 
-      ctx.lineTo(data.x, data.y);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(data.x, data.y);
+        if (drawingMode === 'draw') {
+            context.globalCompositeOperation = 'source-over';
+            context.strokeStyle = currentColor;
+        } else if (drawingMode === 'erase') {
+            context.globalCompositeOperation = 'destination-out';
+            context.strokeStyle = '#fff';
+        }
+
+        context.globalAlpha = currentTransparency;
+
+        context.lineTo(x / scaleFactor, y / scaleFactor);
+        context.stroke();
+        context.beginPath();
+        context.moveTo(x / scaleFactor, y / scaleFactor);
     }
 
-    // Функция изменения кисти
-    function changeBrush() {
-      const select = document.getElementById('brushSelect');
-      currentBrush = select.value;
+    function stopDrawing() {
+        isDrawing = false;
+        context.globalCompositeOperation = 'source-over';
+        context.globalAlpha = 1;
+        context.beginPath();
     }
-  </script>
+
+    function setDrawingMode(mode) {
+        drawingMode = mode;
+    }
+
+    function setColor() {
+        currentColor = document.getElementById('colorPicker').value;
+    }
+
+    function setBrushSize() {
+        currentBrushSize = document.getElementById('brushSize').value;
+    }
+
+    function setTransparency() {
+        currentTransparency = document.getElementById('transparency').value;
+    }
+
+    function clearCanvas() {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function handleZoom(e) {
+        e.preventDefault();
+
+        scaleFactor += e.deltaY * -0.01;
+
+        // Limit zoom between 0.2 and 5
+        scaleFactor = Math.min(Math.max(0.2, scaleFactor), 5);
+
+        canvas.style.transform = `scale(${scaleFactor})`;
+    }
+
+    window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    });
+</script>
+
 </body>
 </html>
+```
+
+В этом коде добавлено масштабирование с помощью события `wheel`. Пользователь может приближать и отдалять холст с использованием колеса мыши.
