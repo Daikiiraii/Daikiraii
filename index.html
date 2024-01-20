@@ -84,8 +84,8 @@
     function draw(e) {
         if (!isDrawing) return;
 
-        const x = e.clientX || e.touches[0].clientX;
-        const y = e.clientY || e.touches[0].clientY;
+        const x = (e.clientX - canvasOffsetX) / scaleFactor;
+        const y = (e.clientY - canvasOffsetY) / scaleFactor;
 
         context.lineWidth = currentBrushSize * scaleFactor;
 
@@ -99,10 +99,10 @@
 
         context.globalAlpha = currentTransparency;
 
-        context.lineTo((x - canvasOffsetX) / scaleFactor, (y - canvasOffsetY) / scaleFactor);
+        context.lineTo(x, y);
         context.stroke();
         context.beginPath();
-        context.moveTo((x - canvasOffsetX) / scaleFactor, (y - canvasOffsetY) / scaleFactor);
+        context.moveTo(x, y);
     }
 
     function stopDrawing() {
@@ -139,13 +139,13 @@
         const oldScaleFactor = scaleFactor;
         const targetScaleFactor = Math.min(Math.max(0.2, scaleFactor + e.deltaY * -zoomSpeed), 5);
 
-        const x = e.clientX - canvas.getBoundingClientRect().left;
-        const y = e.clientY - canvas.getBoundingClientRect().top;
+        const mouseX = e.clientX - canvas.getBoundingClientRect().left;
+        const mouseY = e.clientY - canvas.getBoundingClientRect().top;
 
-        const offsetX = (x - canvasOffsetX) / scaleFactor;
-        const offsetY = (y - canvasOffsetY) / scaleFactor;
+        const offsetX = (mouseX - canvasOffsetX) / scaleFactor;
+        const offsetY = (mouseY - canvasOffsetY) / scaleFactor;
 
-        animateZoom(oldScaleFactor, targetScaleFactor, offsetX, offsetY, x, y, 200);
+        animateZoom(oldScaleFactor, targetScaleFactor, offsetX, offsetY, mouseX, mouseY, 200);
     }
 
     function animateZoom(startScale, targetScale, offsetX, offsetY, pivotX, pivotY, duration) {
