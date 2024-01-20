@@ -144,4 +144,28 @@
         let startTimestamp;
 
         function step(timestamp) {
-            if (!startTimestamp) startTimestamp
+            if (!startTimestamp) startTimestamp = timestamp;
+
+            const progress = timestamp - startTimestamp;
+            const percentage = Math.min(progress / duration, 1);
+
+            scaleFactor = startScale + percentage * (targetScale - startScale);
+
+            canvas.style.transform = `scale(${scaleFactor})`;
+
+            if (percentage < 1) {
+                animationRequestId = requestAnimationFrame(step);
+            }
+        }
+
+        cancelAnimationFrame(animationRequestId);
+        animationRequestId = requestAnimationFrame(step);
+    }
+
+    window.addEventListener('resize', () => {
+        // Resize not allowed in this version, consider implementing if needed
+    });
+</script>
+
+</body>
+</html>
