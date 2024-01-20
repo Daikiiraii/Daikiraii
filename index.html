@@ -147,8 +147,8 @@
     function handleMouseDown(e) {
       if (isPanning) {
         isDrawing = false;
-        panStartX = e.clientX;
-        panStartY = e.clientY;
+        panStartX = e.clientX - canvasOffsetX;
+        panStartY = e.clientY - canvasOffsetY;
       } else {
         isDrawing = true;
         [lastX, lastY] = [e.clientX - canvasOffsetX, e.clientY - canvasOffsetY];
@@ -158,12 +158,8 @@
     function handleMouseMove(e) {
       if (isPanning) {
         if (!isDrawing) return;
-        const deltaX = e.clientX - panStartX;
-        const deltaY = e.clientY - panStartY;
-        panStartX = e.clientX;
-        panStartY = e.clientY;
-        canvasOffsetX += deltaX;
-        canvasOffsetY += deltaY;
+        canvasOffsetX = e.clientX - panStartX;
+        canvasOffsetY = e.clientY - panStartY;
         clearCanvas();
       } else {
         draw(e);
