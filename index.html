@@ -35,6 +35,9 @@
     <button onclick="clearCanvas()">Очистить</button>
     <label for="colorPicker">Выберите цвет:</label>
     <input type="color" id="colorPicker" onchange="changeColor()">
+    <label for="brushSizeInput">Толщина кисти:</label>
+    <input type="range" id="brushSizeInput" min="1" max="100" value="10" onchange="changeBrushSize(this.value)">
+    <input type="number" id="brushSizeNumber" min="1" max="100" value="10" onchange="changeBrushSize(this.value)">
   </div>
 
   <canvas id="drawCanvas"></canvas>
@@ -43,6 +46,8 @@
     const canvas = document.getElementById('drawCanvas');
     const ctx = canvas.getContext('2d');
     const colorPicker = document.getElementById('colorPicker');
+    const brushSizeInput = document.getElementById('brushSizeInput');
+    const brushSizeNumber = document.getElementById('brushSizeNumber');
     
     // Установка размеров холста
     canvas.width = 10000;
@@ -87,6 +92,12 @@
     function handleResize() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
+    }
+
+    function changeBrushSize(value) {
+      brushSize = value;
+      brushSizeInput.value = value;
+      brushSizeNumber.value = value;
     }
 
     // Обработка событий мыши и тача
