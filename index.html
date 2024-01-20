@@ -1,184 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Совместное рисование</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            overflow: hidden;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Рисовалка</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
 
-        canvas {
-            border: 1px solid #000;
-            touch-action: none;
-            transition: transform 0.2s ease-out;
-        }
-
-        #controls {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 10px;
-            border-radius: 10px;
-        }
-
-        button {
-            margin-bottom: 10px;
-            padding: 10px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-    </style>
+    canvas {
+      display: block;
+      background-color: #f0f0f0;
+      touch-action: none; /* отключение действий по умолчанию на тач-устройствах */
+    }
+  </style>
 </head>
 <body>
+  <canvas id="drawCanvas"></canvas>
 
-<canvas id="drawingCanvas"></canvas>
-<div id="controls">
-    <button onclick="setDrawingMode('draw')">Рисовать</button>
-    <button onclick="setDrawingMode('erase')">Стереть</button>
-    <label for="colorPicker">Цвет кисти:</label>
-    <input type="color" id="colorPicker" value="#000000" onchange="setColor()">
-    <label for="brushSize">Размер кисти:</label>
-    <input type="range" id="brushSize" min="1" max="20" value="2" onchange="setBrushSize()">
-    <label for="transparency">Прозрачность:</label>
-    <input type="range" id="transparency" min="0" max="1" step="0.1" value="1" onchange="setTransparency()">
-    <button onclick="clearCanvas()">Очистить</button>
-</div>
+  <script>
+    const canvas = document.getElementById('drawCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Установка размеров холста
+    canvas.width = 1000000;
+    canvas.height = 1000000;
 
-<script>
-    const canvas = document.getElementById('drawingCanvas');
-    const context = canvas.getContext('2d');
     let isDrawing = false;
-    let drawingMode = 'draw';
-    let currentColor = '#000000';
-    let currentBrushSize = 2;
-    let currentTransparency = 1;
-    let scaleFactor = 1;
-    let animationRequestId;
-    let canvasOffsetX = 0;
-    let canvasOffsetY = 0;
-
-    canvas.width = 6000; // Увеличил размер холста в 3 раза
-    canvas.height = 3000; // Увеличил размер холста в 3 раза
-
-    canvas.addEventListener('mousedown', startDrawing);
-    canvas.addEventListener('touchstart', startDrawing);
-    canvas.addEventListener('mousemove', draw);
-    canvas.addEventListener('touchmove', draw, { passive: false });
-    canvas.addEventListener('mouseup', stopDrawing);
-    canvas.addEventListener('touchend', stopDrawing);
-    canvas.addEventListener('wheel', handleZoom);
-
-    function startDrawing(e) {
-        isDrawing = true;
-        draw(e);
-    }
+    let lastX = 0;
+    let lastY = 0;
+    let hue = 0;
+    let brushSize = 10;
+    let eraserMode = false;
 
     function draw(e) {
-        if (!isDrawing) return;
+      if (!isDrawing) return;
+      
+      ctx.lineWidth = brushSize;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      
+      ctx.strokeStyle = eraserMode ? '#f0f0f0' : `hsla(${hue}, 100%, 50%, 1)`;
+      
+      ctx.globalAlpha = 1; // полная прозрачность
+      if (e.pressure) {
+        ctx.globalAlpha = e.pressure; // учитывает силу нажатия на нажимных устройствах (например, стилусах)
+      }
+      
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(e.clientX, e.clientY);
+      ctx.stroke();
 
-        const rect = canvas.getBoundingClientRect();
-        const x = (e.clientX - rect.left - canvasOffsetX) / scaleFactor;
-        const y = (e.clientY - rect.top - canvasOffsetY) / scaleFactor;
-
-        context.lineWidth = currentBrushSize * scaleFactor;
-
-        if (drawingMode === 'draw') {
-            context.globalCompositeOperation = 'source-over';
-            context.strokeStyle = currentColor;
-        } else if (drawingMode === 'erase') {
-            context.globalCompositeOperation = 'destination-out';
-            context.strokeStyle = '#fff';
-        }
-
-        context.globalAlpha = currentTransparency;
-
-        context.lineTo(x, y);
-        context.stroke();
-        context.beginPath();
-        context.moveTo(x, y);
+      [lastX, lastY] = [e.clientX, e.clientY];
     }
 
-    function stopDrawing() {
-        isDrawing = false;
-        context.globalCompositeOperation = 'source-over';
-        context.globalAlpha = 1;
-        context.beginPath();
+    function changeColor() {
+      hue = (hue + 10) % 360;
     }
 
-    function setDrawingMode(mode) {
-        drawingMode = mode;
-    }
-
-    function setColor() {
-        currentColor = document.getElementById('colorPicker').value;
-    }
-
-    function setBrushSize() {
-        currentBrushSize = document.getElementById('brushSize').value;
-    }
-
-    function setTransparency() {
-        currentTransparency = document.getElementById('transparency').value;
+    function eraseToggle() {
+      eraserMode = !eraserMode;
     }
 
     function clearCanvas() {
-        context.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
     }
 
-    function handleZoom(e) {
-        e.preventDefault();
-
-        const zoomSpeed = 0.05;
-        const oldScaleFactor = scaleFactor;
-        const targetScaleFactor = Math.min(Math.max(0.2, scaleFactor + e.deltaY * -zoomSpeed), 5);
-
-        const mouseX = e.clientX - canvas.getBoundingClientRect().left;
-        const mouseY = e.clientY - canvas.getBoundingClientRect().top;
-
-        const offsetX = (mouseX - canvasOffsetX) / scaleFactor;
-        const offsetY = (mouseY - canvasOffsetY) / scaleFactor;
-
-        animateZoom(oldScaleFactor, targetScaleFactor, offsetX, offsetY, mouseX, mouseY, 200);
+    function handleResize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
     }
 
-    function animateZoom(startScale, targetScale, offsetX, offsetY, pivotX, pivotY, duration) {
-        let startTimestamp;
-
-        function step(timestamp) {
-            if (!startTimestamp) startTimestamp = timestamp;
-
-            const progress = timestamp - startTimestamp;
-            const percentage = Math.min(progress / duration, 1);
-
-            scaleFactor = startScale + percentage * (targetScale - startScale);
-
-            canvasOffsetX = pivotX - offsetX * scaleFactor;
-            canvasOffsetY = pivotY - offsetY * scaleFactor;
-
-            canvas.style.transform = `scale(${scaleFactor}) translate(${canvasOffsetX}px, ${canvasOffsetY}px)`;
-
-            if (percentage < 1) {
-                animationRequestId = requestAnimationFrame(step);
-            }
-        }
-
-        cancelAnimationFrame(animationRequestId);
-        animationRequestId = requestAnimationFrame(step);
-    }
-
-    window.addEventListener('resize', () => {
-        // Resize not allowed in this version, consider implementing if needed
+    // Обработка событий мыши и тача
+    canvas.addEventListener('mousedown', (e) => {
+      isDrawing = true;
+      [lastX, lastY] = [e.clientX, e.clientY];
     });
-</script>
 
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', () => isDrawing = false);
+    canvas.addEventListener('mouseout', () => isDrawing = false);
 
+    // Обработка событий тача
+    canvas.addEventListener('touchstart', (e) => {
+      isDrawing = true;
+      [lastX, lastY] = [e.touches[0].clientX, e.touches[0].clientY];
+    });
+
+    canvas.addEventListener('touchmove', (e) => {
+      draw(e.touches[0]);
+      e.preventDefault();
+    });
+
+    canvas.addEventListener('touchend', () => isDrawing = false);
+    canvas.addEventListener('touchcancel', () => isDrawing = false);
+
+    // Дополнительные функции
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'e') {
+        eraseToggle();
+      }
+      if (e.key === 'c') {
+        clearCanvas();
+      }
+      if (e.key === 'r') {
+        changeColor();
+      }
+    });
+  </script>
 </body>
 </html>
