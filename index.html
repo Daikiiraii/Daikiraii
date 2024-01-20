@@ -62,6 +62,8 @@
     let currentTransparency = 1;
     let scaleFactor = 1;
     let animationRequestId;
+    let canvasOffsetX = 0;
+    let canvasOffsetY = 0;
 
     canvas.width = 6000; // Увеличил размер холста в 3 раза
     canvas.height = 3000; // Увеличил размер холста в 3 раза
@@ -97,10 +99,10 @@
 
         context.globalAlpha = currentTransparency;
 
-        context.lineTo(x / scaleFactor, y / scaleFactor);
+        context.lineTo((x - canvasOffsetX) / scaleFactor, (y - canvasOffsetY) / scaleFactor);
         context.stroke();
         context.beginPath();
-        context.moveTo(x / scaleFactor, y / scaleFactor);
+        context.moveTo((x - canvasOffsetX) / scaleFactor, (y - canvasOffsetY) / scaleFactor);
     }
 
     function stopDrawing() {
@@ -133,17 +135,20 @@
     function handleZoom(e) {
         e.preventDefault();
 
-        const zoomSpeed = 0.03;
+        const zoomSpeed = 0.05;
         const oldScaleFactor = scaleFactor;
         const targetScaleFactor = Math.min(Math.max(0.2, scaleFactor + e.deltaY * -zoomSpeed), 5);
 
         const x = e.clientX - canvas.getBoundingClientRect().left;
         const y = e.clientY - canvas.getBoundingClientRect().top;
 
-        animateZoom(oldScaleFactor, targetScaleFactor, x, y, 200);
+        const offsetX = (x - canvasOffsetX) / scaleFactor;
+        const offsetY = (y - canvasOffsetY) / scaleFactor;
+
+        animateZoom(oldScaleFactor, targetScaleFactor, offsetX, offsetY, x, y, 200);
     }
 
-    function animateZoom(startScale, targetScale, pivotX, pivotY, duration) {
+    function animateZoom(startScale, targetScale, offsetX, offsetY, pivotX, pivotY, duration) {
         let startTimestamp;
 
         function step(timestamp) {
@@ -154,10 +159,10 @@
 
             scaleFactor = startScale + percentage * (targetScale - startScale);
 
-            const offsetX = (1 - scaleFactor) * pivotX;
-            const offsetY = (1 - scaleFactor) * pivotY;
+            canvasOffsetX = pivotX - offsetX * scaleFactor;
+            canvasOffsetY = pivotY - offsetY * scaleFactor;
 
-            canvas.style.transform = `scale(${scaleFactor}) translate(${offsetX}px, ${offsetY}px)`;
+            canvas.style.transform = `scale(${scaleFactor}) translate(${canvasOffsetX}px, ${canvasOffsetY}px)`;
 
             if (percentage < 1) {
                 animationRequestId = requestAnimationFrame(step);
