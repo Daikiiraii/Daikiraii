@@ -146,9 +146,9 @@
 
     function handleMouseDown(e) {
       if (isPanning) {
-        isDrawing = false;
-        panStartX = e.clientX - canvasOffsetX;
-        panStartY = e.clientY - canvasOffsetY;
+        isDrawing = true;
+        panStartX = e.clientX;
+        panStartY = e.clientY;
       } else {
         isDrawing = true;
         [lastX, lastY] = [e.clientX - canvasOffsetX, e.clientY - canvasOffsetY];
@@ -158,8 +158,12 @@
     function handleMouseMove(e) {
       if (isPanning) {
         if (!isDrawing) return;
-        canvasOffsetX = e.clientX - panStartX;
-        canvasOffsetY = e.clientY - panStartY;
+        const deltaX = e.clientX - panStartX;
+        const deltaY = e.clientY - panStartY;
+        panStartX = e.clientX;
+        panStartY = e.clientY;
+        canvasOffsetX += deltaX;
+        canvasOffsetY += deltaY;
         clearCanvas();
       } else {
         draw(e);
@@ -178,12 +182,30 @@
 
     // Обработка событий тача
     canvas.addEventListener('touchstart', (e) => {
-      isDrawing = true;
-      [lastX, lastY] = [e.touches[0].clientX - canvasOffsetX, e.touches[0].clientY - canvasOffsetY];
+      if (isPanning) {
+        isDrawing = true;
+        panStartX = e.touches[0].clientX;
+        panStartY = e.touches[0].clientY;
+      } else {
+        isDrawing = true;
+        [lastX, lastY] = [e.touches[0].clientX - canvasOffsetX, e.touches[0].clientY - canvasOffsetY];
+      }
+      e.preventDefault();
     });
 
     canvas.addEventListener('touchmove', (e) => {
-      draw(e.touches[0]);
+      if (isPanning) {
+        if (!isDrawing) return;
+        const deltaX = e.touches[0].clientX - panStartX;
+        const deltaY = e.touches[0].clientY - panStartY;
+        panStartX = e.touches[0].clientX;
+        panStartY = e.touches[0].clientY;
+        canvasOffsetX += deltaX;
+        canvasOffsetY += deltaY;
+        clearCanvas();
+      } else {
+        draw(e.touches[0]);
+      }
       e.preventDefault();
     });
 
