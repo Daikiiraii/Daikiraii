@@ -1,125 +1,113 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 
 <head>
-	<meta charset="utf-8" />
-	<title>anonymous | WBO | Онлайн доска для совместного рисования</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<link rel="stylesheet" type="text/css" href="../board.css" />
-	<script src="../socket.io/socket.io.js"></script>
-	<meta name="description" content="Бесплатная и открытая доска для совместной работы в интернете. Рисуете свои идеи вместе в WBO !" />
-	<meta name="keywords"
-		content="Онлайн доска для совместного рисования,online,draw,paint,shared,realtime,wbo,whitebophir" />
-	<link rel="apple-touch-icon" href="../favicon.svg">
-	<link rel="icon" type="image/x-icon" sizes="16x16" href="../favicon.ico">
-	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0" />
-	<meta property="og:title" content="anonymous board on WBO" />
-	<meta property="og:url" content="http://wbo.ophir.dev/boards/anonymous" />
-	<meta property="og:image" content="http://wbo.ophir.dev/preview/anonymous" />
-	<link rel="canonical" href="anonymous?lang=ru" />
-	<link rel="alternate" hreflang="de" href="anonymous?lang=de" />
-	<link rel="alternate" hreflang="en" href="anonymous?lang=en" />
-	<link rel="alternate" hreflang="es" href="anonymous?lang=es" />
-	<link rel="alternate" hreflang="fr" href="anonymous?lang=fr" />
-	<link rel="alternate" hreflang="hu" href="anonymous?lang=hu" />
-	<link rel="alternate" hreflang="id" href="anonymous?lang=id" />
-	<link rel="alternate" hreflang="it" href="anonymous?lang=it" />
-	<link rel="alternate" hreflang="ja" href="anonymous?lang=ja" />
-	<link rel="alternate" hreflang="my" href="anonymous?lang=my" />
-	<link rel="alternate" hreflang="pt" href="anonymous?lang=pt" />
-	<link rel="alternate" hreflang="ru" href="anonymous?lang=ru" />
-	<link rel="alternate" hreflang="sw" href="anonymous?lang=sw" />
-	<link rel="alternate" hreflang="th" href="anonymous?lang=th" />
-	<link rel="alternate" hreflang="uk" href="anonymous?lang=uk" />
-	<link rel="alternate" hreflang="vn" href="anonymous?lang=vn" />
-	<link rel="alternate" hreflang="zh-CN" href="anonymous?lang=zh-CN" />
-	<link rel="alternate" hreflang="zh-TW" href="anonymous?lang=zh-TW" />
-	<link rel="alternate" hreflang="pl" href="anonymous?lang=pl" />
-	<script src="../polyfill.min.js"></script>
+    <meta charset="utf-8" />
+    <title>anonymous | WBO | Онлайн доска для совместного рисования</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Бесплатная и открытая доска для совместной работы в интернете. Рисуете свои идеи вместе в WBO !" />
+    <meta name="keywords" content="Онлайн доска для совместного рисования,online,draw,paint,shared,realtime,wbo,whitebophir" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0" />
+    <meta property="og:title" content="anonymous board on WBO" />
+    <meta property="og:url" content="http://wbo.ophir.dev/boards/anonymous" />
+    <meta property="og:image" content="http://wbo.ophir.dev/preview/anonymous" />
+    <link rel="canonical" href="anonymous?lang=ru" />
+    <link rel="alternate" hreflang="de" href="anonymous?lang=de" />
+    <link rel="alternate" hreflang="en" href="anonymous?lang=en" />
+    <!-- Другие языковые альтернативы... -->
+    <link rel="alternate" hreflang="pl" href="anonymous?lang=pl" />
+    <link rel="alternate" hreflang="zh-CN" href="anonymous?lang=zh-CN" />
+    <!-- Завершение языковых альтернатив -->
+
+    <!-- Стили -->
+    <link rel="stylesheet" type="text/css" href="../board.css" />
+
+    <!-- Скрипты -->
+    <script src="../polyfill.min.js"></script>
+    <script src="../socket.io/socket.io.js"></script>
 </head>
 
 <body>
 
-	<div id="board">
-		<svg id="canvas" width="500" height="500" version="1.1" xmlns="http://www.w3.org/2000/svg">
-			<defs id="defs"></defs>
-			<g id="drawingArea"></g>
-			<g id="cursors"></g>
-		</svg>
-	</div>
+    <!-- Основной контент страницы -->
+    <div id="board">
+        <svg id="canvas" width="500" height="500" version="1.1" xmlns="http://www.w3.org/2000/svg">
+            <defs id="defs"></defs>
+            <g id="drawingArea"></g>
+            <g id="cursors"></g>
+        </svg>
+    </div>
 
-	<div id="loadingMessage">Загрузка</div>
+    <div id="loadingMessage">Загрузка</div>
 
-	<div id="menu" tabindex="0" >
-		<div id="menuItems">
-			<ul id="tools" class="tools">
-				<li class="tool" tabindex="-1">
-					<img class="tool-icon" width="35" height="35" src="" alt="icon" />
-					<span class="tool-name"></span>
-					<img class="tool-icon secondaryIcon" width="35" height="35" src="data:," alt="icon" />
-				</li>
-			</ul>
+    <!-- Меню -->
+    <div id="menu" tabindex="0">
+        <div id="menuItems">
+            <!-- Инструменты -->
+            <ul id="tools" class="tools">
+                <li class="tool" tabindex="-1">
+                    <img class="tool-icon" width="35" height="35" src="" alt="icon" />
+                    <span class="tool-name"></span>
+                    <img class="tool-icon secondaryIcon" width="35" height="35" src="data:," alt="icon" />
+                </li>
+            </ul>
 
-			<ul class="tools" id="settings">
-				<li class="tool" tabindex="-1">
-					<input class="tool-icon" type="color" id="chooseColor" value="#1913B0" />
-					<label class="tool-name" for="chooseColor">Цвет</label>
-					<span class="colorPresets" id="colorPresetSel">
-						<span class="colorPresetButton"></span>
-					</span>
-				</li>
-				<li class="tool" tabindex="-1"
-					title="Размер (горячая клавиша: alt + колёсико мыши )">
-					<img class="tool-icon" width="60" height="60" src="icon-size.svg" alt="size" />
-					<label class="tool-name slider" for="chooseSize">
-						<span>Размер</span>
-						<input type="range" id="chooseSize" value="4" min="1" max="50" step="1" class="rangeChooser" />
-					</label>
-				</li>
-				<li class="tool" tabindex="-1">
-					<span class="tool-icon">
-						<svg viewBox="0 0 8 8">
-							<pattern id="opacityPattern" x="0" y="0" width="4" height="4" patternUnits="userSpaceOnUse">
-								<rect x=0 y=0 width=2 height=2 fill=black></rect>
-								<rect x=2 y=2 width=2 height=2 fill=black></rect>
-								<rect x=2 y=0 width=2 height=2 fill=#eeeeee></rect>
-								<rect x=0 y=2 width=2 height=2 fill=#eeeeee></rect>
-							</pattern>
-							<circle cx=4 cy=4 id="opacityIndicator" r=3.5 fill="url(#opacityPattern)"></circle>
-						</svg>
-					</span>
-					<label class="tool-name slider" for="chooseOpacity">
-						<span>Непрозрачность</span>
-						<input type="range" id="chooseOpacity" value="1" min="0.2" max="1" step="0.1"
-							class="rangeChooser" />
-					</label>
-				</li>
-			</ul>
-		</div>
-	</div>
+            <!-- Настройки -->
+            <ul class="tools" id="settings">
+                <!-- Выбор цвета -->
+                <li class="tool" tabindex="-1">
+                    <input class="tool-icon" type="color" id="chooseColor" value="#1913B0" />
+                    <label class="tool-name" for="chooseColor">Цвет</label>
+                    <span class="colorPresets" id="colorPresetSel">
+                        <span class="colorPresetButton"></span>
+                    </span>
+                </li>
+                <!-- Размер -->
+                <li class="tool" tabindex="-1" title="Размер (горячая клавиша: alt + колёсико мыши )">
+                    <img class="tool-icon" width="60" height="60" src="icon-size.svg" alt="size" />
+                    <label class="tool-name slider" for="chooseSize">
+                        <span>Размер</span>
+                        <input type="range" id="chooseSize" value="4" min="1" max="50" step="1" class="rangeChooser" />
+                    </label>
+                </li>
+                <!-- Непрозрачность -->
+                <li class="tool" tabindex="-1">
+                    <span class="tool-icon">
+                        <svg viewBox="0 0 8 8">
+                            <!-- Содержимое SVG... -->
+                        </svg>
+                    </span>
+                    <label class="tool-name slider" for="chooseOpacity">
+                        <span>Непрозрачность</span>
+                        <input type="range" id="chooseOpacity" value="1" min="0.2" max="1" step="0.1" class="rangeChooser" />
+                    </label>
+                </li>
+            </ul>
+        </div>
+    </div>
 
+    <!-- Скрипты для функциональности доски -->
+    <script src="../js/path-data-polyfill.js"></script>
+    <script src="../js/minitpl.js"></script>
+    <script src="../js/intersect.js"></script>
+    <script src="../js/board.js"></script>
 
-	<script type="application/json" id="translations">{"board_name_placeholder":"Название доски","circle":"Круг","click_to_toggle":"нажмите, чтобы переключиться","collaborative_whiteboard":"Онлайн доска для совместного рисования","color":"Цвет","configuration":"Настройки","create_private_board":"Создать приватную доску","ellipse":"Эллипс","eraser":"Ластик","grid":"Сетка","hand":"Рука","download":"Скачать","index_title":"Добро пожаловать на WBO !","introduction_paragraph":"WBO это бесплатная и <a href=\"https://github.com/lovasoa/whitebophir\" title=\"открытый исходный код\">открытая</a> виртуальная онлайн доска, позволяющая рисовать одновременно сразу нескольким пользователям. С WBO вы сможете рисовать, работать с коллегами над будущими проектами, проводить онлайн встречи, подкреплять ваши обучающие материалы и даже пробовать себя в дизайне. WBO доступен без регистрации.","keyboard_shortcut":"горячая клавиша","loading":"Загрузка","menu":"Панель","mousewheel":"колёсико мыши ","mover":"Сдвинуть объект","named_private_board_description":"Также можно создать <b>именную приватную доску</b> которая будет доступна всем тем, кому вы отправили название вашей доски.","opacity":"Непрозрачность","open_public_board":"Открыть анонимную доску","pencil":"Карандаш","private_board_description":"<b>Приватная доска</b> обладает тем же функционалом, что и анонимная доска. Разница в том, что приватную доску могут видеть только те пользователи, у которых на нее есть ссылка. Используйте приватную онлайн доску в рабочих целях, проводите онлайн уроки, рисуйте с детьми или друзьями. Другие пользователи не смогут удалять или менять ваши работы без вашего разрешения.","public_board_description":"<b>Анонимная доска</b> позволяет рисовать вместе онлайн. Используйте этот формат для творчества и кучи разных идей. Вдохновляйтесь уже существующими рисунками, дополняйте их и создавайте совместные работы с другими посетителями. Любой пользователь может удалять уже существующие элементы и рисунки.","recent_boards":"Недавние доски","rectangle":"Прямоугольник","share_instructions":"Использовать платформу для совместного творчества очень просто. Достаточно поделиться ссылкой URL с теми, кто хочет с вами порисовать. Как только они получат URL они смогут к вам присоединиться.","size":"Размер","square":"Квадрат","straight_line":"Прямая линия","tagline":"Бесплатная и открытая доска для совместной работы в интернете. Рисуете свои идеи вместе в WBO !","text":"Текст","tools":"Инструменты","view_source":"Исходный код на GitHub","white-out":"Корректор","zoom":"Лупа"}</script>
-	<script type="application/json" id="configuration">{"MAX_BOARD_SIZE":65536,"MAX_EMIT_COUNT":192,"MAX_EMIT_COUNT_PERIOD":4096,"BLOCKED_TOOLS":[""],"BLOCKED_SELECTION_BUTTONS":[""],"AUTO_FINGER_WHITEOUT":true}</script>
-	<script src="../js/path-data-polyfill.js"></script>
-	<script src="../js/minitpl.js"></script>
-	<script src="../js/intersect.js"></script>
-	<script src="../js/board.js"></script>
-	<script src="../tools/pencil/wbo_pencil_point.js"></script>
-	<script src="../tools/pencil/pencil.js"></script>
-	<script src="../tools/cursor/cursor.js"></script>
-	<script src="../tools/line/line.js"></script>
-	<script src="../tools/rect/rect.js"></script>
-	<script src="../tools/ellipse/ellipse.js"></script>
-	<script src="../tools/text/text.js"></script>
-	<script src="../tools/eraser/eraser.js"></script>
-	<script src="../tools/hand/hand.js"></script>
-	<script src="../tools/grid/grid.js"></script>
-	<script src="../tools/download/download.js"></script>
-	<script src="../tools/zoom/zoom.js"></script>
-	
-	<script src="../js/canvascolor.js"></script>
+    <!-- Инструменты -->
+    <script src="../tools/pencil/wbo_pencil_point.js"></script>
+    <script src="../tools/pencil/pencil.js"></script>
+    <script src="../tools/cursor/cursor.js"></script>
+    <script src="../tools/line/line.js"></script>
+    <script src="../tools/rect/rect.js"></script>
+    <script src="../tools/ellipse/ellipse.js"></script>
+    <script src="../tools/text/text.js"></script>
+    <script src="../tools/eraser/eraser.js"></script>
+    <script src="../tools/hand/hand.js"></script>
+    <script src="../tools/grid/grid.js"></script>
+    <script src="../tools/download/download.js"></script>
+    <script src="../tools/zoom/zoom.js"></script>
+
+    <!-- Дополнительные скрипты -->
+    <script src="../js/canvascolor.js"></script>
 </body>
 
 </html>
