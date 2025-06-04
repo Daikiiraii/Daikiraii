@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Тест</title>
+    <script>
+        let score = 0;
+
+        function test() {
+            if (confirm("10 + 21 = 31?")) {
+                alert("Вірно!");
+                score++;
+            } else {
+                alert("Невірно!");
+            }
+
+            let answer = prompt("Скільки буде 5 * 10?");
+            if (answer == 50) {
+                alert("Крутий!");
+                score++;
+            } else {
+                alert("Все не вірно.");
+            }
+
+            alert("Сума балів: " + score);
+            if (score >= 2) alert("Молодчинка!");
+            else alert("Спробуй ще раз.");
+        }
+    </script>
+</head>
+<body onload="test()">
+<h1 align="center">Тестування закінчено</h1>
+</body>
+</html>

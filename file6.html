@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Активне зображення</title>
+    <style>
+        body {
+            background-color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            color: #2c3e50;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 2em;
+            margin-bottom: 30px;
+            color: #00695c;
+        }
+
+        .image-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        img {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        p {
+            text-align: center;
+            margin-top: 30px;
+            font-weight: bold;
+        }
+
+        a {
+            text-decoration: none;
+            color: #2980b9;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: #1a5276;
+        }
+    </style>
+</head>
+<body>
+    <h2>Моя улюблена тварина</h2>
+
+    <div class="image-container">
+        <img src="group.jpg" alt="Фото групи" usemap="#mymap">
+        <map name="mymap">
+            <area shape="rect" coords="50,50,150,150" href="file1.htm" alt="Я">
+            <area shape="circle" coords="300,100,50" href="file2.htm" alt="Подруга">
+            <area shape="poly" coords="400,150,450,200,400,250,350,200" href="file3.htm" alt="Одногрупник">
+        </map>
+    </div>
+
+    <p><a href="file1.html">← Назад</a></p>
+</body>
+</html>
